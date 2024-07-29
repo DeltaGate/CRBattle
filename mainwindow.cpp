@@ -4,6 +4,7 @@
 #include <vector>
 #include <QVariant>
 #include <iostream>
+#include <QVector>
 
 using namespace std;
 // Global Variable Store:
@@ -75,44 +76,74 @@ void MainWindow::on_removeMonster_clicked()
 void MainWindow::on_loadDbButton_clicked()
 {
     DB_Connection.open();
-    QString data;
     QSqlQuery QueryLoadData;
     QueryLoadData.exec("SELECT name FROM monster where type = 'Goblinoid';");
 
     if( !QueryLoadData.exec("SELECT name FROM monster where type = 'Goblinoid';") ) {
-        qDebug() << "Error:" << QueryLoadData.lastError().text();                       // Error check for DB
+        qDebug() << "Error:" << QueryLoadData.lastError().text();
     }
 
-    //QStringList Tables = DB_Connection.tables(); //displays tables in db to console
-    //qDebug() << Tables;
-    //if(QueryLoadData.exec()){
     qDebug() << "pre loop check";
-    while (QueryLoadData.next()) {
-        QString name = QueryLoadData.value(0).toString();
-        data = name;
-        qDebug() << "Name: " << name;
-    }
-    //} else {qDebug() << "Why the fuck isn't this working";}
 
-    ui->dbTestLabel->setText(data);
+    ui->dbTestLabel->setText("Database functional");
 
-
+    int countAbilitys = 0;
+    int countLetters = 0;
+    string heldDataForCutting;
 
     QueryLoadData.exec("SELECT * FROM monster;");
     while(QueryLoadData.next()){
+
+        //begin with counting abilitys total
+        auto abilitys = QueryLoadData.value(3).toString();
+        countAbilitys = 0;
+        for(QChar let:abilitys){
+            countAbilitys += (let == ',');
+            if(let == ','){
+            }
+        }
+
         MonsterObj monster;
         monster.name = QueryLoadData.value(0).toString();
         monster.type = QueryLoadData.value(1).toString();
         monster.cr = QueryLoadData.value(2).toDouble();
         monster.description = QueryLoadData.value(4).toString();
+        //setting inital monster obj values
 
+
+        QVector<QString> abilitysToVector;
+        //Vector for type conversion
+
+        if(countAbilitys == 0){
+            abilitysToVector = {QueryLoadData.value(3).toString()};
+            monster.abilitys = abilitysToVector;
+        }else
+            {
+                heldDataForCutting = QueryLoadData.value(3).toString().toStdString();
+
+                for(int i = 0; i < countAbilitys; i++){
+                    abilitysToVector.append(QString::fromStdString(heldDataForCutting.substr(0, heldDataForCutting.find(','))));
+                    heldDataForCutting.erase(0, heldDataForCutting.find(',')+1);
+                }
+
+                abilitysToVector.append(QString::fromStdString(heldDataForCutting));
+                monster.abilitys = abilitysToVector;
+        }
+        // setting monster abilitys value
+
+
+        qDebug() << "Name: " << monster.name;
         qDebug() << monster.description;
+        qDebug() << countAbilitys;
+        qDebug() << monster.abilitys;
+
 
          QListWidgetItem* item = new QListWidgetItem();
         item->setText(monster.name);
         item->setData(Qt::UserRole, monster.type);
         item->setData(Qt::UserRole + 1, monster.cr);
         item->setData(Qt::ToolTipRole, monster.description);
+        item->setData(Qt::UserRole + 2, monster.abilitys);
         ui->monsterList->addItem(item); //adds monster to list
     }
 

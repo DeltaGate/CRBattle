@@ -5,6 +5,7 @@
 #include <QSqlQuery>
 #include <QtSql>
 
+
 QT_BEGIN_NAMESPACE
 namespace Ui {
 class MainWindow;
@@ -19,6 +20,8 @@ public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
     void addObjectsToList();
+    Ui::MainWindow *ui;
+    QSqlDatabase DB_Connection;
 private slots:
     void on_addMonster_clicked();
     void on_removeMonster_clicked();
@@ -26,8 +29,7 @@ private slots:
     void on_loadDbButton_clicked();
 
 private:
-    Ui::MainWindow *ui;
-    QSqlDatabase DB_Connection;
+
 
 };
 #endif // MAINWINDOW_H

@@ -4,6 +4,8 @@
 #include <string>
 #include <vector>
 #include <QString>
+#include <QVector>
+
 using namespace std;
 
 class MonsterObj
@@ -15,7 +17,7 @@ public:
     QString type;
     double cr;
     QString description;
-    vector<string> abilitys;
+    QVector<QString> abilitys;
 
 private:
 
